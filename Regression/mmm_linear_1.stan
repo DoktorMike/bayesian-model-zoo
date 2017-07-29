@@ -1,15 +1,19 @@
 data {
-  int<lower=0> N;                // Number of data points
-  vector[N] y;            // The response variable
+  int<lower=0> N;      // Number of data points
+  int<lower=0> Kxmi;   // Number of media impressions types
+  int<lower=0> Kxmc;   // Number of media clicks types
+  int<lower=0> Kxmg;   // Number of media gross types
+  int<lower=0> Kxwa;   // Number of weather variables
+  vector[N] y;         // The response variable
 
-  matrix[N,7] xweekday; // The weekdays variables
-  matrix[N,12] xmonth;  // The month variables
+  matrix[N,7] xswd;    // The weekdays variables
+  matrix[N,12] xsm;    // The month variables
 
-  matrix[N,3] ximp;     // The media variables
-  matrix[N,1] xclicks;  // The media variables
-  matrix[N,4] xgross;   // The media variables
+  matrix[N,Kxmi] xmi;  // The media variables for impressions
+  matrix[N,Kxmc] xmc;  // The media variables for clicks
+  matrix[N,Kxmg] xmg;  // The media variables for gross spendings
 
-  matrix[N,3] xweather; // The weather variables
+  matrix[N,Kxwa] xwa;  // All weather variables
 }
 
 transformed data {
@@ -19,57 +23,57 @@ transformed data {
 }
 
 parameters {
-  real<lower=0.01> b0;  // The intercept
+  real<lower=0.01> b0;          // The intercept
 
   // Seasonality
-  vector[7-1] bweekday;   // The weekday regression parameters
-  vector[12-1] bmonth;    // The month regression parameters
+  vector[7-1] bswd;             // The weekday regression parameters
+  vector[12-1] bsm;             // The month regression parameters
 
   // Media
-  vector<lower=0>[3] bimp;       // The impressions regression parameters
-  vector<lower=0>[1] bclicks;    // The clicks regression parameters
-  vector<lower=0>[4] bgross;     // The gross regression parameters
+  vector<lower=0>[Kxmi] bmi;    // The impressions regression parameters
+  vector<lower=0>[Kxmc] bmc;    // The clicks regression parameters
+  vector<lower=0>[Kxmg] bmg;    // The gross regression parameters
 
   // Weather
-  vector[3] bweather;   // The weather regression parameters
+  vector[Kxwa] bwa;             // The weather regression parameters
 
-  real<lower=0> sigma; // The standard deviation
+  real<lower=0> sigma;          // The standard deviation
 }
 
 transformed parameters {
   // Declarations
   vector[N] mu;
-  vector[7] bweekdayhat;
-  vector[12] bmonthhat;
+  vector[7] bswdhat;
+  vector[12] bsmhat;
 
   // The weekday part
-  bweekdayhat[1]=0;
-  for (i in 1:(7-1)) bweekdayhat[i+1] = bweekday[i];
+  bswdhat[1]=0;
+  for (i in 1:(7-1)) bswdhat[i+1] = bswd[i];
   // The month part
-  bmonthhat[1]=0;
-  for (i in 1:(12-1)) bmonthhat[i+1] = bmonth[i];
+  bsmhat[1]=0;
+  for (i in 1:(12-1)) bsmhat[i+1] = bsm[i];
 
   // The mean prediction each timestep
-  mu = b0+xweekday*bweekdayhat+xmonth*bmonthhat+ximp*bimp+xclicks*bclicks+xgross*bgross+xweather*bweather;
+  mu = b0+xswd*bswdhat+xsm*bsmhat+xmi*bmi+xmc*bmc+xmg*bmg+xwa*bwa;
 }
 
 model {
-  // Priors
+  // Seasonality priors
   b0 ~ normal(mean(ynew), sd(ynew));
-  bweekday ~ normal(0, sd(ynew));
-  bmonth ~ normal(0, sd(ynew));
+  bswd ~ normal(0, sd(ynew));
+  bsm ~ normal(0, sd(ynew));
   // Media priors
-  bimp ~ normal(0, sd(ynew)/sd(ximp));
-  bclicks ~ normal(0, sd(ynew)/sd(xclicks));
-  bgross ~ normal(0, sd(ynew)/sd(xgross));
+  bmi ~ normal(0, sd(ynew)/sd(xmi));
+  bmc ~ normal(0, sd(ynew)/sd(xmc));
+  bmg ~ normal(0, sd(ynew)/sd(xmg));
   // Weather priors
-  bweather ~ normal(0, sd(ynew)/sd(xweather));
+  bwa ~ normal(0, sd(ynew)/sd(xwa));
   // Likelihood
   ynew ~ normal(mu, sigma);
 }
 
 generated quantities {
   vector[N] yhat;
-  yhat = b0+xweekday*bweekdayhat+xmonth*bmonthhat+ximp*bimp+xclicks*bclicks+xgross*bgross+xweather*bweather;
+  yhat = b0+xswd*bswdhat+xsm*bsmhat+xmi*bmi+xmc*bmc+xmg*bmg+xwa*bwa;
   //yhat = yhat*sd(y)+mean(y);
 }
