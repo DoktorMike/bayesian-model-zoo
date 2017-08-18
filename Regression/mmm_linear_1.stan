@@ -1,3 +1,29 @@
+
+functions {
+  real std_normal_lpdf(vector y) {
+    return -0.5 * y' * y;
+  }
+
+  vector regression_rng(vector beta, matrix x, real sigma) {
+    vector[rows(x)] y;
+    vector[rows(x)] mu;
+    mu = x * beta;
+    for (n in 1:rows(x)) y[n] = normal_rng(mu[n], sigma);
+    return y;
+  }
+
+  vector solowlag(vector x, real lambda, real r) {
+    vector[num_elements(x)] y;
+    vector[num_elements(x)] b;
+    real b0 = lambda*pow(1-lambda, r);
+    b[1] = b0;
+    for(i in 1:(num_elements(x)-1)) b[i+1] = b[i]*((r+i-1)/i)*lambda;
+    for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*x[tt:1]);  // tt:1 range does not WORK!
+    //for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*1); // This works!
+    return y;
+  }
+}
+
 data {
   int<lower=0> N;      // Number of data points
   int<lower=0> Kxmi;   // Number of media impressions types
@@ -74,6 +100,8 @@ model {
 
 generated quantities {
   vector[N] yhat;
-  yhat = b0+xswd*bswdhat+xsm*bsmhat+xmi*bmi+xmc*bmc+xmg*bmg+xwa*bwa;
+  vector[N] muhat;
+  muhat = b0+xswd*bswdhat+xsm*bsmhat+xmi*bmi+xmc*bmc+xmg*bmg+xwa*bwa;
+  for(i in 1:N) yhat[i] = normal_rng(muhat[i], sigma);
   //yhat = yhat*sd(y)+mean(y);
 }
