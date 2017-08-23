@@ -1,10 +1,8 @@
-// Built with stan 2.11
 data {
   int<lower=1> N;
   real D[N];
 }
 
-// stan operates on log scale
 transformed data {
   real log_unif;
   log_unif = log(N);
@@ -18,9 +16,7 @@ parameters {
   real<lower=0> sigma2;
 }
 
-// Marginalize out tau and
-// calculate log_p(D | mu1, sd1, mu2, sd2)
-// TODO: we can make this linear via dynamic programming
+// Marginalize out tau and calculate log_p(D | mu1, sd1, mu2, sd2)
 transformed parameters {
   vector[N] log_p;
   real mu;
@@ -34,21 +30,15 @@ transformed parameters {
     }
 }
 
-
 model {
   mu1 ~ normal(0, 100);
   mu2 ~ normal(0, 100);
-
-  // scale parameters need to be > 0;
-  // we constrained sigma1, sigma2 to be positive
-  // so that stan interprets the following as half-normal priors
   sigma1 ~ normal(0, 100);
   sigma2 ~ normal(0, 100);
 
   target += log_sum_exp(log_p);
 }
 
-//Draw the discrete parameter tau. This is highly inefficient
 generated quantities {
   int<lower=1,upper=N> tau;
   tau = categorical_rng(softmax(log_p));
