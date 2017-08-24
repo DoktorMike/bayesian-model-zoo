@@ -1,11 +1,13 @@
 data {
   int<lower=1> N;
-  real D[N];
+  real y[N];
 }
 
 transformed data {
+  real D[N];
   real log_unif;
   log_unif = log(N);
+  for(i in 1:N) D[i] = (y[i] - mean(y))/sd(y);
 }
 
 parameters {
@@ -31,10 +33,10 @@ transformed parameters {
 }
 
 model {
-  mu1 ~ normal(0, 100);
-  mu2 ~ normal(0, 100);
-  sigma1 ~ normal(0, 100);
-  sigma2 ~ normal(0, 100);
+  mu1 ~ normal(0, 1);
+  mu2 ~ normal(0, 1);
+  sigma1 ~ normal(0, 1);
+  sigma2 ~ normal(0, 1);
 
   target += log_sum_exp(log_p);
 }

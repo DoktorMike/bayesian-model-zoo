@@ -22,12 +22,24 @@ distOverlap <- function(x1, x2, breaks=NULL) {
   return(overlap)
 }
 
+hasChangepoint <- function(x, chains=2, iter=1000)
+{
+  m <- readRDS("Regression/changepoint.rds")
+  data <- list(N=length(x), y=x)
+  f <- sampling(m, data=data, iter = iter, chains=chains)
+  fdf <- as.data.frame(f)
+  resdf <- tibble(param=c("mu", "sigma"),
+                  overlap=c(distOverlap(fdf$mu1, fdf$mu2), distOverlap(fdf$sigma1, fdf$sigma2)),
+                  probability=1-overlap,
+                  changepoint=median(fdf$tau))
+  return(list(params=fdf, results=resdf))
+}
+
 m <- readRDS("Regression/changepoint.rds")
-data <- list(N=100, D=c(rnorm(50, 100, 50), rnorm(50, 200, 50)))
-f <- sampling(m, data=data, iter = 1000)
+data <- list(N=100, y=c(rnorm(50, 100, 100), rnorm(50, 150, 100)))
+f <- sampling(m, data=data, iter = 1000, chains=2)
+# f <- vb(m, data=data, iter = 1000, algorithm="meanfield")
 farr <- as.array(f)
 mcmc_areas(farr, regex_pars = "^mu\\d")
 mcmc_areas(farr, regex_pars = "^sigma\\d")
 mcmc_dens_overlay(farr, regex_pars = "tau")
-
-save(m2, file = "Regression/changepoint.RData")
