@@ -18,8 +18,8 @@ functions {
     real b0 = lambda*pow(1-lambda, r);
     b[1] = b0;
     for(i in 1:(num_elements(x)-1)) b[i+1] = b[i]*((r+i-1)/i)*lambda;
-    for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*x[tt:1]);  // tt:1 range does not WORK!
-    //for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*1); // This works!
+    //for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*x[tt:1]);  // tt:1 range does not WORK!
+    for(tt in 1:num_elements(y)) y[tt] = sum(b[1:tt]*1); // This works!
     return y;
   }
 }

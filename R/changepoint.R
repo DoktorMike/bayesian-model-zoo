@@ -36,11 +36,13 @@ hasChangepoint <- function(x, chains=2, iter=1000, allpars=FALSE)
   return(list(params=fdf, results=resdf))
 }
 
-m <- readRDS("Regression/changepoint.rds")
-data <- list(N=100, y=c(rnorm(50, 100, 100), rnorm(50, 150, 100)))
-f <- sampling(m, data=data, iter = 1000, chains=2, pars=c("mu1", "mu2", "sigma1", "sigma2", "tau"))
-# f <- vb(m, data=data, iter = 1000, algorithm="meanfield")
-farr <- as.array(f)
-mcmc_areas(farr, regex_pars = "^mu\\d")
-mcmc_areas(farr, regex_pars = "^sigma\\d")
-mcmc_dens_overlay(farr, regex_pars = "tau")
+if(FALSE){
+  m <- readRDS("Regression/changepoint.rds")
+  data <- list(N=100, y=c(rnorm(50, 100, 100), rnorm(50, 150, 100)))
+  f <- sampling(m, data=data, iter = 1000, chains=2, pars=c("mu1", "mu2", "sigma1", "sigma2", "tau"))
+  # f <- vb(m, data=data, iter = 1000, algorithm="meanfield")
+  farr <- as.array(f)
+  mcmc_areas(farr, regex_pars = "^mu\\d")
+  mcmc_areas(farr, regex_pars = "^sigma\\d")
+  mcmc_dens_overlay(farr, regex_pars = "tau")
+}
