@@ -45,27 +45,58 @@ distOverlap <- function(x1, x2, breaks=NULL) {
 #' @param iter number of samples to pull from MCMC defaults to 1000
 #' @param allpars return all parameter samples from the changepoint model which
 #' defaults to FALSE and thus returns only the relevant ones for the decision
-#' @param ... other arguments you want to send to sampling
+#' @param cores the number of cores to use which defaults to max(parallel::detectCores()-1, 1)
+#' @param ... other arguments passed to the sampling method in rstan
 #' @importFrom tibble tibble
 #' @importFrom rstan sampling
 #' @importFrom stats median
+#' @importFrom parallel detectCores
 #' @return a list of names results containing a tibble with overlap probabilities
 #' for mu and sigma as well as the samples for the relevant parameters of the model.
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' a <- hasChangepoint(c(rnorm(50, 100, 100), rnorm(50, 150, 100)))
 #' print(a$results)
-hasChangepoint <- function(x, chains=2, iter=1000, allpars=FALSE)
+#' }
+hasChangepoint <- function(x, chains=2, iter=1000, allpars=FALSE, cores=max(parallel::detectCores()-1, 1), ...)
 {
-  # m <- readRDS("Regression/changepoint.rds")
-  data <- list(N=length(x), y=x)
-  if(allpars) pars <- NA else pars <- c("mu1", "mu2", "sigma1", "sigma2", "tau")
-  f <- sampling(m, data=data, iter = iter, chains=chains, pars=pars)
+  f <- changepoint(x = x, iter = iter, chains = chains, allpars = allpars, cores = cores, ...)
   fdf <- as.data.frame(f)
   resdf <- tibble(param=c("mu", "sigma"),
                   overlap=c(distOverlap(fdf$mu1, fdf$mu2), distOverlap(fdf$sigma1, fdf$sigma2)),
                   probability=1-overlap,
                   changepoint=median(fdf$tau))
   return(list(params=fdf, results=resdf))
+}
+
+#' Perform a changepoint analysis
+#'
+#' Samples the changepoint model using Stan and returns the stanfit object as a
+#' result.
+#'
+#' @param x the time series to perform the analysis on
+#' @param chains the number of chains to use which defaults to 2
+#' @param iter the number of samples to pull which defaults to 1000
+#' @param allpars decides if all parameters should be returned or not. FALSE which is
+#' the default only gives the mu's and the sigmas and the tau
+#' @param cores the number of cores to use which defaults to max(parallel::detectCores()-1, 1)
+#' @param ... other arguments passed to the sampling method in rstan
+#' @importFrom rstan sampling
+#' @importFrom parallel detectCores
+#' @return the stanfit from the sampled changepoint model
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' library(bayesplot)
+#' aa<-changepoint(c(rnorm(50, 100, 10), rnorm(50, 150, 10)))
+#' mcmc_combo(as.array(aa), regex_pars = "tau")
+#' }
+changepoint <- function(x, chains=2, iter=1000, allpars=FALSE, cores=max(parallel::detectCores()-1, 1), ...)
+{
+  data <- list(N=length(x), y=x)
+  if(allpars) pars <- NA else pars <- c("mu1", "mu2", "sigma1", "sigma2", "tau")
+  sampling(stanmodels$changepoint, data=data, iter = iter, chains=chains, pars=pars, cores=cores, ...)
 }
