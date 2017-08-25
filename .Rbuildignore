@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^data/bayesVsFreqAgain.RData$
 ^alla$
+.travis.yml
