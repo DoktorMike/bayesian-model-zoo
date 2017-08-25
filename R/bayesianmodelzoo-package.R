@@ -1,9 +1,9 @@
-#' Applied Regression Modeling via RStan
+#' Bayesian Model Zoo
 #'
 #' @docType package
 #' @name bayesianmodelzoo-package
 #' @aliases bayesmodelzoo
-#' @useDynLib rstanarm, .registration = TRUE
+#' @useDynLib bayesianmodelzoo, .registration = TRUE
 #'
 #' @import methods
 #' @importFrom rstan optimizing sampling vb constrain_pars extract

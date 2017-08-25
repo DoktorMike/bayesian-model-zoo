@@ -4,7 +4,7 @@
 \name{bayesianmodelzoo-package}
 \alias{bayesianmodelzoo-package}
 \alias{bayesmodelzoo}
-\title{Applied Regression Modeling via RStan}
+\title{Bayesian Model Zoo}
 \description{
 \if{html}{
    \figure{stanlogo.png}{options: width="50px" alt="mc-stan.org"}
