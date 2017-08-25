@@ -13,11 +13,6 @@
 #' @import bayesplot
 #' @import shinystan
 #' @import rstantools
-#' @export log_lik posterior_linpred posterior_predict posterior_interval
-#' @export predictive_interval predictive_error prior_summary bayes_R2
-#' @export loo_linpred loo_predict loo_predictive_interval
-#' @export loo waic
-#' @export launch_shinystan
 #'
 #' @description
 #' \if{html}{
