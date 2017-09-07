@@ -27,3 +27,9 @@ the stanfit from the sampled changepoint model
 This function performs a probabilistic principal component analysis with
 automatic relevance determination.
 }
+\examples{
+library(ggplot2)
+library(mvtnorm)
+tmpdf <- mvtnorm::rmvnorm(400, sigma = matrix(c(1,0.5,0.5,1),2,2))
+qplot(tmpdf[,1], tmpdf[,2])
+}

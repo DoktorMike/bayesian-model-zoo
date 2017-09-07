@@ -12,13 +12,16 @@
 #' @importFrom rstan sampling
 #' @importFrom parallel detectCores
 #' @return the stanfit from the sampled changepoint model
-#' @export
-#'
 #' @examples
+#' library(ggplot2)
+#' library(mvtnorm)
+#' tmpdf <- mvtnorm::rmvnorm(400, sigma = matrix(c(1,0.5,0.5,1),2,2))
+#' qplot(tmpdf[,1], tmpdf[,2])
+#' @export
 ppcaard <- function(xdf, k, chains=2, iter=500, cores=max(parallel::detectCores()-1, 1), ...)
 {
   if(!inherits(xdf, "data.frame")) stop("Error: You need to supply a data.frame as xdf!")
   if(any(missing(k), length(k)>1)) stop("Error: You need to supply a scalar value for k!")
-  data <- list(N=nrow(xdf), D=ncol(xdf), M=k)
+  data <- list(N=nrow(xdf), D=ncol(xdf), M=k, x=xdf)
   sampling(stanmodels$ppcaard, data=data, iter = iter, chains=chains, cores=cores, ...)
 }
