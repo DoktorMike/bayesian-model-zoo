@@ -11,17 +11,19 @@
 #' @param ... other arguments passed to the sampling method in rstan
 #' @importFrom rstan sampling
 #' @importFrom parallel detectCores
+#' @importFrom dplyr "%>%"
 #' @return the stanfit from the sampled changepoint model
 #' @examples
 #' library(ggplot2)
 #' library(mvtnorm)
 #' library(tibble)
+#' library(dplyr)
 #' tmpdf <- mvtnorm::rmvnorm(400, sigma = matrix(c(1,0.8,0.8,1),2,2))
-#' qplot(tmpdf[,1], tmpdf[,2])
+#' ggplot2::qplot(tmpdf[,1], tmpdf[,2])
 #' a<-ppcaard(as.data.frame(tmpdf), 2)
 #' adf <- as.data.frame(a)
-#' compdf <- tibble(z1=adf[,grep("z\\[1,", colnames(adf), value=T)] %>% colMeans(),
-#'                  z2=adf[,grep("z\\[2,", colnames(adf), value=T)] %>% colMeans())
+#' compdf <- tibble::tibble(z1=adf[,grep("z\\[1,", colnames(adf), value=TRUE)] %>% colMeans(),
+#'                  z2=adf[,grep("z\\[2,", colnames(adf), value=TRUE)] %>% colMeans())
 #' @export
 ppcaard <- function(xdf, k, chains=2, iter=500, cores=max(parallel::detectCores()-1, 1), ...)
 {
