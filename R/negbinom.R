@@ -21,6 +21,8 @@
 #'   sfit<-negbinom(data$y, data$X, iter = 500, chains=2, cores=2, allpars = TRUE)
 #'   library(bayesplot)
 #'   mcmc_combo(as.array(sfit), regex_pars = "tau")
+#'   yrep<-as.matrix(sfit)
+#'   ppc_dens_overlay(data$y, yrep[1:50,grep("y_", colnames(yrep))])
 #' }
 negbinom <- function(y, x, chains=2, iter=1000, allpars=FALSE, cores=max(parallel::detectCores()-1, 1), ...)
 {
