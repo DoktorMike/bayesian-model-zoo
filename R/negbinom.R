@@ -16,10 +16,15 @@
 #' @export
 #'
 #' @examples
-#' a<-1
+#' \dontrun{
+#'   data<-list(N=nrow(mtcars), y=mtcars$gear, X=mtcars[, c('drat', 'am')])
+#'   sfit<-negbinom(data$y, data$X, iter = 500, chains=2, cores=2, allpars = TRUE)
+#'   library(bayesplot)
+#'   mcmc_combo(as.array(sfit), regex_pars = "tau")
+#' }
 negbinom <- function(y, x, chains=2, iter=1000, allpars=FALSE, cores=max(parallel::detectCores()-1, 1), ...)
 {
-  data <- list(N=length(x), y=y, x=x)
+  data <- list(N=nrow(x), K=ncol(x), y=y, X=x)
   if(allpars) pars <- NA else pars <- c("beta", "mu", "phi", "y_rep")
-  sampling(stanmodels$multiple_negative_binomial_regression, data=data, iter = iter, chains=chains, pars=pars, cores=cores, ...)
+  rstan::sampling(stanmodels$multiple_negative_binomial_regression, data=data, iter = iter, chains=chains, pars=pars, cores=cores, ...)
 }

@@ -3,6 +3,7 @@
 export(changepoint)
 export(distOverlap)
 export(hasChangepoint)
+export(negbinom)
 export(ppcaard)
 import(Rcpp)
 import(bayesplot)
