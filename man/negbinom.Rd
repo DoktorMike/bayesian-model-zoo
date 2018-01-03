@@ -31,6 +31,12 @@ This implements a Bayesian negative binomial regression by using the 2nd
 parameterization from the Stan manual.
 }
 \examples{
-data<-list(N=nrow(mtcars), y=mtcars$gear, X=mtcars[, c('drat', 'am')])
-
+\dontrun{
+  data<-list(N=nrow(mtcars), y=mtcars$gear, X=mtcars[, c('drat', 'am')])
+  sfit<-negbinom(data$y, data$X, iter = 500, chains=2, cores=2, allpars = TRUE)
+  library(bayesplot)
+  mcmc_combo(as.array(sfit), regex_pars = "tau")
+  yrep<-as.matrix(sfit)
+  ppc_dens_overlay(data$y, yrep[1:50,grep("y_", colnames(yrep))])
+}
 }

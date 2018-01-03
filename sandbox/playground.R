@@ -14,8 +14,10 @@ library(bayesplot)
 library(ggplot2)
 library(dautility)
 library(HDInterval)
+library(dplyr)
 
-m1 <- stan_model(file = "Regression/mmm_linear_1.stan")
+m1 <- stan_model(file = "exec/mmm_linear_1.stan")
+mydf <- read.csv("inst/extdata/data.csv") %>% mutate(date=as.Date(date))
 data1 <- list(N=nrow(mydf),
               Kxmi=select(mydf, matches("impressions_")) %>% ncol(),
               Kxmc=select(mydf, clicks_Online_paidSearch_All) %>% ncol(),
@@ -29,7 +31,7 @@ data1 <- list(N=nrow(mydf),
               xmg=select(mydf, matches("gross_")),
               xwa=select(mydf, precipitation, wind_speed, mean_temperature)
 )
-f1 <- sampling(m1, data=data1, iter = 500)
+f1 <- sampling(m1, data=data1, iter = 500, chains=2, cores=2)
 f1arr <- as.array(f1)
 f1df <- as.data.frame(f1)
 ppc_dens_overlay(y=data1$y, yrep = f1arr[1:23,1,grep("^yhat\\[*", names(f1), value = T)])
@@ -123,3 +125,33 @@ mcmc_areas(f2arr[,1,grep("^mu*", names(f2), value = T)])
 mcmc_areas(f2arr[,1,grep("^sigma*", names(f2), value = T)])
 
 saveRDS(m2, "Regression/changepoint.rds")
+
+
+
+# Normal vs QR ------------------------------------------------------------
+
+library(rstan)
+library(Rcpp)
+library(bayesplot)
+library(ggplot2)
+library(dautility)
+
+m1 <- stan_model(file = "exec/multiple_linear_regression_normal.stan")
+m2 <- stan_model(file = "exec/multiple_linear_regression_qr.stan")
+
+mydf <- read.csv("inst/extdata/data.csv") %>% mutate(date=as.Date(date))
+tmpdf <- select(mydf, newusers,
+                matches("impressions_"), matches("gross_"),
+                precipitation, wind_speed, mean_temperature)
+
+data1 <- list(N=nrow(tmpdf),
+              K=ncol(tmpdf)-1,
+              x=select(tmpdf, -newusers),
+              y=tmpdf$newusers)
+f1 <- sampling(m1, data=data1, iter = 1000, chains=2, cores=2)
+f1arr <- as.array(f1)
+f1df <- as.data.frame(f1)
+
+f2 <- sampling(m2, data=data1, iter = 1000, chains=2, cores=2)
+f2arr <- as.array(f2)
+f2df <- as.data.frame(f2)
