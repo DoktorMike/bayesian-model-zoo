@@ -151,7 +151,11 @@ data1 <- list(N=nrow(tmpdf),
 f1 <- sampling(m1, data=data1, iter = 1000, chains=2, cores=2)
 f1arr <- as.array(f1)
 f1df <- as.data.frame(f1)
+mcmc_areas(f1arr[,1,grep("^beta*", names(f1), value = T)])
+mcmc_trace(f1arr[,1,grep("^beta*", names(f1), value = T)])
 
 f2 <- sampling(m2, data=data1, iter = 1000, chains=2, cores=2)
 f2arr <- as.array(f2)
 f2df <- as.data.frame(f2)
+mcmc_areas(f2arr[,1,grep("^beta*", names(f2), value = T)])
+mcmc_trace(f2arr[,1,grep("^beta*", names(f2), value = T)])
