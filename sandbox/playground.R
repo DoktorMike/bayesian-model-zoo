@@ -17,7 +17,7 @@ library(HDInterval)
 library(dplyr)
 
 m1 <- stan_model(file = "exec/mmm_linear_1.stan")
-mydf <- read.csv("inst/extdata/data.csv") %>% mutate(date=as.Date(date))
+mydf <- read.csv("inst/extdata/data.csv") %>% as_tibble() %>% mutate(date=as.Date(date))
 data1 <- list(N=nrow(mydf),
               Kxmi=select(mydf, matches("impressions_")) %>% ncol(),
               Kxmc=select(mydf, clicks_Online_paidSearch_All) %>% ncol(),
